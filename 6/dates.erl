@@ -1,4 +1,4 @@
--module(date).
+-module(dates).
 
 -export([date_parts/1, julian/1]).
 
