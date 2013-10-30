@@ -30,11 +30,16 @@ get_prompts(triangle) ->
 get_prompts(ellipse) ->
     {"Enter major axis: ", "Enter minor axis: "}.
 
+number_read_result_to_float({error, Value}) ->
+    {error, Value};
+number_read_result_to_float({_, [Value]}) ->
+    string:to_float(Value ++ ".0").
+
 get_dimensions(error) ->
     error;
 get_dimensions(Shape) ->
     {PromptA, PromptB} = get_prompts(Shape),
-    check_dimensions({io:fread(PromptA, "~d"), io:fread(PromptB, "~d")}).
+    check_dimensions({number_read_result_to_float(io:fread(PromptA, "~s")), number_read_result_to_float(io:fread(PromptB, "~s"))}).
 
 check_dimensions({{error, _}, {_, _}}) ->
     io:fwrite("Error in first dimension."),
@@ -42,10 +47,10 @@ check_dimensions({{error, _}, {_, _}}) ->
 check_dimensions({{_, _}, {error, _}}) ->
     io:fwrite("Error in second dimension."),
     error;
-check_dimensions({{ok, [A]}, {ok, [B]}}) when A =< 0; B =< 0 ->
+check_dimensions({{A, _}, {B, _}}) when A =< 0; B =< 0 ->
     io:fwrite("Both dimensions must be positive."),
     error;
-check_dimensions({{ok, [A]}, {ok, [B]}}) when A > 0, B > 0 ->
+check_dimensions({{A, _}, {B, _}}) when A > 0, B > 0 ->
     {A, B}.
 
 area(rectangle, {Height, Width}) ->
